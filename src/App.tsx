@@ -1,57 +1,112 @@
-import { For, createSignal, Accessor, createEffect } from "solid-js";
-import { createLocalStore } from "./utils";
-
+import { For, createSignal, createMemo } from "solid-js";
 import "./App.css";
 
 type Todo = {
+	id: number;
 	description: string;
 	completed: boolean;
 };
 
-function App() {
-	const [todos, setTodos] = createSignal<Todo[]>([
-		{ description: "hi", completed: false },
-		{ description: "tyler", completed: true },
-	]);
+const initialTodos = [
+	{ id: 1, description: "hi", completed: false },
+	{ id: 2, description: "tyler", completed: true },
+];
 
-	const toggleTodo = (index: number) => {
+function App() {
+	const [filter, setFilter] = createSignal<boolean>(false);
+	const [description, setDescription] = createSignal<string>("");
+	const [todos, setTodos] = createSignal<Todo[]>(initialTodos);
+
+	const deleteTodo = (id: number) => {
+		setTodos((t) => {
+			const tc = [...t];
+
+			const deleteIndex = tc.findIndex((todo) => todo.id === id);
+
+			tc.splice(deleteIndex, 1);
+
+			return tc;
+		});
+	};
+
+	const toggleTodo = (id: number) => {
 		setTodos((t) => {
 			const updatedTodos = [...t];
+			const updateIndex = updatedTodos.findIndex((todo) => todo.id === id);
 
-			updatedTodos[index] = {
-				...updatedTodos[index],
-				completed: !updatedTodos[index].completed,
+			updatedTodos[updateIndex] = {
+				...updatedTodos[updateIndex],
+				completed: !updatedTodos[updateIndex].completed,
 			};
 
 			return updatedTodos;
 		});
 	};
 
-	const doSideEffect = (prev: Todo[]) => {
-		console.log(prev);
+	const addTodo = (description: string) => {
+		setTodos((t) => {
+			const newTodo = {
+				id: t.length + 1,
+				description,
+				completed: false,
+			};
+
+			const updatedTodos = [...t, newTodo];
+
+			return updatedTodos;
+		});
+
+		setDescription(() => "");
 	};
 
-	createEffect(() => doSideEffect(todos()));
+	const displayTodos = createMemo(() =>
+		!filter() ? todos() : todos().filter((t) => !t.completed)
+	);
 
 	return (
-		<For each={todos()}>
-			{(todo, i) => {
-				console.log(i);
-				return (
-					<div>
-						{i()}-{todo.description}-{String(todo.completed)}
-						<button
-							onClick={(e) => {
-								e.preventDefault();
-								toggleTodo(i());
-							}}
-						>
-							Toggle
-						</button>
-					</div>
-				);
-			}}
-		</For>
+		<>
+			<h2>Whatcha need to do my dood?</h2>
+			<div>
+				Filter Completed:
+				<input
+					type="checkbox"
+					checked={filter()}
+					onChange={(e) => setFilter(() => e.target.checked)}
+				/>
+			</div>
+			<div>
+				<input
+					value={description()}
+					onChange={(e) => setDescription((d) => e.target.value)}
+				></input>
+				<button onClick={(e) => addTodo(description())}>Add</button>
+			</div>
+			<For each={displayTodos()}>
+				{(todo, i) => {
+					return (
+						<div>
+							{todo.id}-{todo.description}-{String(todo.completed)}
+							<button
+								onClick={(e) => {
+									e.preventDefault();
+									toggleTodo(todo.id);
+								}}
+							>
+								Toggle
+							</button>
+							<button
+								onClick={(e) => {
+									e.preventDefault();
+									deleteTodo(todo.id);
+								}}
+							>
+								Delete
+							</button>
+						</div>
+					);
+				}}
+			</For>
+		</>
 	);
 }
 
