@@ -79,12 +79,12 @@ function App() {
 			<div>
 				<input
 					value={description()}
-					onChange={(e) => setDescription((d) => e.target.value)}
+					onChange={(e) => setDescription(() => e.target.value)}
 				/>
-				<button onClick={(e) => addTodo(description())}>Add</button>
+				<button onClick={() => addTodo(description())}>Add</button>
 			</div>
 			<For each={displayTodos()}>
-				{(todo, i) => {
+				{(todo) => {
 					return (
 						<TodoItem todo={todo} onToggle={toggleTodo} onDelete={deleteTodo} />
 					);
