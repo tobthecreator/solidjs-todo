@@ -1,15 +1,16 @@
 import { For, createSignal, createMemo } from "solid-js";
 import "./App.css";
+import { createUniqueId } from "solid-js";
 
 type Todo = {
-	id: number;
+	id: string;
 	description: string;
 	completed: boolean;
 };
 
 const initialTodos = [
-	{ id: 1, description: "hi", completed: false },
-	{ id: 2, description: "tyler", completed: true },
+	{ id: createUniqueId(), description: "hi", completed: false },
+	{ id: createUniqueId(), description: "tyler", completed: true },
 ];
 
 function App() {
@@ -17,7 +18,7 @@ function App() {
 	const [description, setDescription] = createSignal<string>("");
 	const [todos, setTodos] = createSignal<Todo[]>(initialTodos);
 
-	const deleteTodo = (id: number) => {
+	const deleteTodo = (id: string) => {
 		setTodos((t) => {
 			const tc = [...t];
 
@@ -29,7 +30,7 @@ function App() {
 		});
 	};
 
-	const toggleTodo = (id: number) => {
+	const toggleTodo = (id: string) => {
 		setTodos((t) => {
 			const updatedTodos = [...t];
 			const updateIndex = updatedTodos.findIndex((todo) => todo.id === id);
@@ -46,7 +47,7 @@ function App() {
 	const addTodo = (description: string) => {
 		setTodos((t) => {
 			const newTodo = {
-				id: t.length + 1,
+				id: createUniqueId(),
 				description,
 				completed: false,
 			};
@@ -78,7 +79,7 @@ function App() {
 				<input
 					value={description()}
 					onChange={(e) => setDescription((d) => e.target.value)}
-				></input>
+				/>
 				<button onClick={(e) => addTodo(description())}>Add</button>
 			</div>
 			<For each={displayTodos()}>
