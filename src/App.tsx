@@ -1,8 +1,9 @@
 import { For, createSignal, createMemo } from "solid-js";
 import "./App.css";
 import { createUniqueId } from "solid-js";
+import TodoItem from "./components/TodoItem";
 
-type Todo = {
+export type Todo = {
 	id: string;
 	description: string;
 	completed: boolean;
@@ -85,25 +86,7 @@ function App() {
 			<For each={displayTodos()}>
 				{(todo, i) => {
 					return (
-						<div>
-							{todo.id}-{todo.description}-{String(todo.completed)}
-							<button
-								onClick={(e) => {
-									e.preventDefault();
-									toggleTodo(todo.id);
-								}}
-							>
-								Toggle
-							</button>
-							<button
-								onClick={(e) => {
-									e.preventDefault();
-									deleteTodo(todo.id);
-								}}
-							>
-								Delete
-							</button>
-						</div>
+						<TodoItem todo={todo} onToggle={toggleTodo} onDelete={deleteTodo} />
 					);
 				}}
 			</For>
